@@ -59,7 +59,7 @@ def create_app(config_class=Config):
         from app.models import AdminUser
         if not AdminUser.query.filter_by(username='admin@gmail.com').first():
             admin = AdminUser(username='admin@gmail.com')
-            admin.set_password('Admin@123')  # Set a secure default password
+            admin.set_password('Admin')  # Set a secure default password
             db.session.add(admin)
             db.session.commit()
             print("Default admin account created: admin@gmail.com / Admin@123")
