@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Review Files{% endblock %}
+
+{% block content %}
+
+<h1>Review Files</h1>
+
+<p>
+    Files have been read. Automatic application selection is shown below.
+    You can change it before processing.
+</p>
+
+
+<form id="process-form"
+      method="POST"
+      action="{{ url_for('main.process', job_id=job.id) }}">
+
+
+<div class="card">
+
+<h2>Uploaded Files</h2>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+    <th>Filename</th>
+    <th>Detected</th>
+    <th>Detection</th>
+    <th>Rows</th>
+    <th>Columns</th>
+    <th>Assign Application</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for item in job.files %}
+
+<tr>
+
+<td>
+    {{ item.original_name }}
+</td>
+
+<td>
+    <span class="badge">
+        {{ item.detected_source|upper }}
+    </span>
+</td>
+
+<td>
+    {{ item.detection_method }}
+</td>
+
+<td>
+    {{ item.rows }}
+</td>
+
+<td>
+    {{ item.columns }}
+</td>
+
+<td>
+
+<select name="source_{{ item.id }}"
+        class="source-select">
+
+{% for source in source_types %}
+
+<option value="{{ source }}"
+    {% if source == item.detected_source %}
+        selected
+    {% endif %}>
+
+    {{ source|upper }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</td>
+
+</tr>
+
+{% if item.error %}
+
+<tr>
+<td colspan="6"
+    class="error-text">
+
+    {{ item.error }}
+
+</td>
+</tr>
+
+{% endif %}
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Minimum Application Versions</h2>
+
+<p>
+    The application found these versions in the uploaded files.
+    Select a minimum version only when you want version compliance
+    checking for that application.
+</p>
+
+
+{% for source in [
+    "av",
+    "edr",
+    "dlp",
+    "bigfix",
+    "zscaler",
+    "intune",
+    "cmdb"
+] %}
+
+<div class="version-row">
+
+<div>
+    <strong>{{ source|upper }}</strong>
+
+    <div class="version-list">
+
+        {% if job.version_catalog[source] %}
+
+            {% for version in job.version_catalog[source] %}
+
+                <span class="version-chip">
+                    {{ version }}
+                </span>
+
+            {% endfor %}
+
+        {% else %}
+
+            <span class="muted">
+                No version found
+            </span>
+
+        {% endif %}
+
+    </div>
+</div>
+
+
+<div>
+
+<label>
+    Minimum required version
+</label>
+
+<select name="minimum_version_{{ source }}">
+
+<option value="">
+    No minimum version
+</option>
+
+{% for version in job.version_catalog[source] %}
+
+<option value="{{ version }}">
+    {{ version }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<div class="card">
+
+<h2>Ready to Process</h2>
+
+<p>
+    The selected minimum versions will be applied to every file
+    assigned to the corresponding application.
+</p>
+
+<button type="submit"
+        class="btn primary">
+
+    Start Processing
+
+</button>
+
+</div>
+
+</form>
+
+
+<div id="processing-panel"
+     class="processing-panel hidden">
+
+<h2>Processing Files...</h2>
+
+<div class="progress">
+
+<div id="progress-bar"
+     class="progress-bar">
+
+</div>
+
+</div>
+
+<p id="progress-text">
+    Starting...
+</p>
+
+</div>
+
+
+<script>
+
+const form = document.getElementById("process-form");
+const panel = document.getElementById("processing-panel");
+const progressBar = document.getElementById("progress-bar");
+const progressText = document.getElementById("progress-text");
+
+form.addEventListener("submit", function () {
+
+    panel.classList.remove("hidden");
+
+    progressBar.style.width = "20%";
+
+    progressText.innerText =
+        "Reading source files and building device registry...";
+
+});
+
+</script>
+
+{% endblock %}

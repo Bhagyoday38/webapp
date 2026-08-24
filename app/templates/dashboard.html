@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-header">
+
+    <div>
+
+        <h1>Processing Complete</h1>
+
+        <p>
+            Consolidated device report has been generated.
+        </p>
+
+    </div>
+
+    <a class="btn primary" href="{{ url_for('main.download', job_id=job.id) }}">
+
+        Download Excel Report
+
+    </a>
+
+</div>
+
+
+<div class="metrics">
+
+    <div class="metric">
+
+        <span>Total Devices</span>
+
+        <strong>
+            {{ job.summary.total }}
+        </strong>
+
+    </div>
+
+
+    <div class="metric good">
+
+        <span>Compliant</span>
+
+        <strong>
+            {{ job.summary.compliant }}
+        </strong>
+
+    </div>
+
+
+    <div class="metric bad">
+
+        <span>Non-Compliant</span>
+
+        <strong>
+            {{ job.summary.non_compliant }}
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <h2>Minimum Versions Applied</h2>
+
+    {% if job.minimum_versions %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>Minimum Version</th>
+                <th>Version Failures</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for app, version in job.minimum_versions.items() %}
+
+            <tr>
+
+                <td>
+                    {{ app|upper }}
+                </td>
+
+                <td>
+                    {{ version }}
+                </td>
+
+                <td>
+                    {{ job.summary.version_failures.get(app, 0) }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <p>
+        No minimum application version rules were selected.
+    </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card">
+
+    <h2>Missing Tool Coverage</h2>
+
+    <div class="grid">
+
+        {% for tool, count in job.summary.missing.items() %}
+
+        <div class="coverage">
+
+            <strong>
+                {{ tool|upper }}
+            </strong>
+
+            <span>
+                {{ count }} devices missing
+            </span>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <h2>Report</h2>
+
+    <p>
+        The Excel workbook contains:
+    </p>
+
+    <ul>
+        <li>BigFix</li>
+        <li>Intune</li>
+        <li>EDR</li>
+        <li>AV</li>
+        <li>DLP</li>
+        <li>CMDB</li>
+        <li>Zscaler</li>
+    </ul>
+
+    <a class="btn primary" href="{{ url_for('main.download', job_id=job.id) }}">
+
+        Download Consolidated_Device_Report.xlsx
+
+    </a>
+
+</div>
+
+{% endblock %}

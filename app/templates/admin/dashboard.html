@@ -1,0 +1,732 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard – Shri Sarwatma Dham{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto py-12 px-4 space-y-12">
+
+    <!-- ========================================= -->
+    <!-- ADMIN HEADER -->
+    <!-- ========================================= -->
+
+    <div class="flex justify-between items-center bg-white p-6 rounded-xl border border-gold-300/30 shadow-sm">
+
+        <h1 class="text-3xl font-display font-bold text-maroon-600">
+            Admin Dashboard
+        </h1>
+
+        <form method="POST" action="{{ url_for('admin_bp.logout') }}" class="m-0">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <button type="submit"
+                class="text-saffron-600 font-semibold hover:underline border border-saffron-500 px-4 py-2 rounded-lg hover:bg-saffron-50 transition bg-transparent">
+
+                Logout
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- FLASH MESSAGES -->
+    <!-- ========================================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% if messages %}
+
+    {% for category, message in messages %}
+
+    <div class="p-4 bg-emerald-50 text-emerald-700 font-medium rounded-xl border border-emerald-100">
+
+        {{ message }}
+
+    </div>
+
+    {% endfor %}
+
+    {% endif %}
+
+    {% endwith %}
+
+
+    <!-- ========================================= -->
+    <!-- 1. GLOBAL SETTINGS -->
+    <!-- ========================================= -->
+
+    <div>
+
+        <h2 class="text-xl font-display font-bold mb-4 text-saffron-600 border-b border-gold-300/30 pb-2">
+
+            <i class="fa-solid fa-globe mr-2"></i>
+
+            Global Site Settings
+
+        </h2>
+
+
+        <form method="POST" action="{{ url_for('admin_bp.update_settings') }}"
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gold-300/30 grid md:grid-cols-2 gap-6">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+
+            <!-- Contact Address -->
+
+            <div>
+
+                <label class="block text-sm font-semibold mb-1 text-ink">
+                    Contact Address
+                </label>
+
+                <input type="text" name="address" value="{{ settings_dict.address }}" maxlength="300"
+                    class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+            </div>
+
+
+            <!-- Contact Email -->
+
+            <div>
+
+                <label class="block text-sm font-semibold mb-1 text-ink">
+                    Contact Email
+                </label>
+
+                <input type="email" name="email" value="{{ settings_dict.email }}" maxlength="200" required
+                    class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div>
+
+                <label class="block text-sm font-semibold mb-1 text-ink">
+                    Footer Copyright Text
+                </label>
+
+                <input type="text" name="footer_text" value="{{ settings_dict.footer_text }}" maxlength="300"
+                    class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+            </div>
+
+
+            <!-- Google Maps -->
+
+            <div>
+
+                <label class="block text-sm font-semibold mb-1 text-ink">
+                    Google Maps Embed URL
+                </label>
+
+                <input type="url" name="map_url" value="{{ settings_dict.map_url }}" pattern="https://.*"
+                    class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+                <p class="text-xs text-ink-700/60 mt-1">
+
+                    Use the <em>Embed a map</em> link from Google Maps'
+                    Share menu.
+
+                </p>
+
+            </div>
+
+
+            <div class="md:col-span-2">
+
+                <button type="submit"
+                    class="bg-ganga-900 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-maroon-600 transition">
+
+                    Save Global Settings
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- 2. MANAGE PAGE CONTENT -->
+    <!-- ========================================= -->
+
+    <div>
+
+        <h2 class="text-xl font-display font-bold mb-4 text-saffron-600 border-b border-gold-300/30 pb-2">
+
+            <i class="fa-solid fa-file-lines mr-2"></i>
+
+            Manage Page Content
+
+        </h2>
+
+        <p class="text-sm text-ink-700/70 mb-5">
+            Manage the heading, introductory text, and header image for your main pages.
+            Actual events are managed separately below.
+        </p>
+
+
+        <div class="grid md:grid-cols-3 gap-6">
+
+            {% for content in contents %}
+
+            <form method="POST" action="{{ url_for('admin_bp.update_content', id=content.id) }}"
+                enctype="multipart/form-data"
+                class="bg-white p-6 rounded-2xl shadow-sm border border-gold-300/30 space-y-4">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+
+                <!-- PAGE IDENTIFICATION -->
+
+                <span
+                    class="inline-block px-3 py-1 bg-gold-400/20 text-maroon-600 text-xs font-bold rounded-full uppercase">
+
+                    {{ content.page }} Page Header
+
+                </span>
+
+
+                <!-- MAIN PAGE HEADING -->
+
+                <div>
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Main Page Heading
+
+                    </label>
+
+                    <input type="text" name="title" value="{{ content.title }}" maxlength="200"
+                        placeholder="Enter page heading"
+                        class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+                </div>
+
+
+                <!-- INTRODUCTORY TEXT -->
+
+                <div>
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Introductory Paragraph
+
+                    </label>
+
+                    <textarea name="body" rows="4" maxlength="3000" placeholder="Enter introductory text"
+                        class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">{{ content.body }}</textarea>
+
+                </div>
+
+
+                <!-- HEADER IMAGE -->
+
+                <div>
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Header Image (Optional)
+
+                    </label>
+
+                    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp"
+                        class="block w-full text-sm text-ink-700 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cream file:text-ink">
+
+                </div>
+
+
+                <!-- SAVE BUTTON -->
+
+                <button type="submit"
+                    class="w-full bg-ganga-900 text-white font-bold py-2 rounded-lg hover:bg-maroon-600 transition shadow">
+
+                    Save {{ content.page }} Header
+
+                </button>
+
+            </form>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- 3. HOME PAGE SLIDER -->
+    <!-- ========================================= -->
+
+    <div>
+
+        <h2 class="text-xl font-display font-bold mb-4 text-saffron-600 border-b border-gold-300/30 pb-2">
+
+            <i class="fa-solid fa-images mr-2"></i>
+
+            Home Page Slider
+
+        </h2>
+
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gold-300/30 mb-6">
+
+            <form method="POST" action="{{ url_for('admin_bp.upload_slider') }}" enctype="multipart/form-data"
+                class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                <input type="file" name="slider_image" accept=".jpg,.jpeg,.png,.webp" required
+                    class="block w-full text-sm text-ink-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-saffron-50 file:text-saffron-700 hover:file:bg-saffron-100">
+
+                <button type="submit"
+                    class="bg-saffron-500 text-white font-bold px-6 py-2 rounded-full hover:bg-maroon-600 transition whitespace-nowrap shadow">
+
+                    Add Slide
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+            {% for img in carousel_images %}
+
+            <div class="relative bg-white rounded-lg shadow border border-gold-300/30 overflow-hidden group">
+
+                <img src="{{ url_for('static', filename=img.image_url) }}" class="w-full h-32 object-cover">
+
+                <form method="POST" action="{{ url_for('admin_bp.delete_slider', id=img.id) }}"
+                    class="absolute top-2 right-2">
+
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                    <button type="submit"
+                        class="bg-maroon-500 text-white w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-maroon-600">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- 4. MANAGE EVENTS -->
+    <!-- ========================================= -->
+
+    <div>
+
+        <h2 class="text-xl font-display font-bold mb-4 text-saffron-600 border-b border-gold-300/30 pb-2">
+
+            <i class="fa-solid fa-calendar mr-2"></i>
+
+            Manage Events
+
+        </h2>
+
+
+        <p class="text-sm text-ink-700/70 mb-5">
+            Create and manage individual events displayed on the Events page.
+        </p>
+
+
+        <!-- ADD NEW EVENT -->
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gold-300/30">
+
+            <h3 class="text-lg font-display font-bold text-maroon-600 mb-5">
+
+                <i class="fa-solid fa-plus-circle mr-2"></i>
+
+                Add New Event
+
+            </h3>
+
+
+            <form method="POST" action="{{ url_for('admin_bp.add_event') }}" enctype="multipart/form-data"
+                class="grid md:grid-cols-2 gap-6">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+
+                <!-- EVENT TITLE -->
+
+                <div>
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Event Title
+
+                    </label>
+
+                    <input type="text" name="title" required minlength="3" maxlength="200"
+                        placeholder="Enter event title"
+                        class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+                </div>
+
+
+                <!-- EVENT DATE -->
+
+                <div>
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Event Date
+
+                    </label>
+
+                    <input type="text" name="event_date" required minlength="4" maxlength="50"
+                        placeholder="e.g. Oct 15, 2026"
+                        class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500">
+
+                </div>
+
+
+                <!-- EVENT DESCRIPTION -->
+
+                <div class="md:col-span-2">
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Event Description
+
+                    </label>
+
+                    <textarea name="description" rows="4" required minlength="10" maxlength="2000"
+                        placeholder="Describe the event..."
+                        class="w-full border border-gold-300/40 p-2 rounded-lg focus:ring-2 focus:ring-saffron-500"></textarea>
+
+                </div>
+
+
+                <!-- EVENT IMAGE -->
+
+                <div class="md:col-span-2">
+
+                    <label class="block text-sm font-semibold mb-1 text-ink">
+
+                        Event Image (Optional)
+
+                    </label>
+
+                    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp"
+                        class="block w-full text-sm text-ink-700 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cream file:text-ink">
+
+                </div>
+
+
+                <!-- ADD EVENT BUTTON -->
+
+                <div class="md:col-span-2">
+
+                    <button type="submit"
+                        class="bg-saffron-500 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-maroon-600 transition shadow">
+
+                        <i class="fa-solid fa-plus mr-2"></i>
+
+                        Add Event
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- CURRENT EVENTS -->
+
+        <div class="mt-8">
+
+            <h3 class="text-lg font-display font-bold text-maroon-600 mb-4">
+
+                <i class="fa-solid fa-list mr-2"></i>
+
+                Current Events
+
+            </h3>
+
+
+            {% if events %}
+
+            <div class="grid md:grid-cols-3 gap-6">
+
+                {% for event in events %}
+
+                <div class="bg-white rounded-lg shadow border border-gold-300/30 overflow-hidden relative">
+
+                    {% if event.image_url %}
+
+                    <img src="{{ url_for('static', filename=event.image_url) }}" class="w-full h-40 object-cover">
+
+                    {% endif %}
+
+
+                    <div class="p-4">
+
+                        <h3 class="font-display font-bold text-lg text-ink">
+
+                            {{ event.title }}
+
+                        </h3>
+
+                        <p class="text-sm text-saffron-600 font-semibold mb-2">
+
+                            {{ event.event_date }}
+
+                        </p>
+
+                        <p class="text-sm text-ink-700">
+
+                            {{ event.description }}
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- DELETE EVENT -->
+
+                    <form method="POST" action="{{ url_for('admin_bp.delete_event', id=event.id) }}"
+                        class="absolute top-2 right-2">
+
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                        <button type="submit"
+                            class="bg-maroon-500 text-white px-3 py-1 text-sm rounded shadow hover:bg-maroon-600">
+
+                            <i class="fa-solid fa-trash mr-1"></i>
+
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="bg-white p-8 rounded-xl border border-gold-300/30 text-center text-ink-700">
+
+                <i class="fa-solid fa-calendar-xmark text-3xl text-gold-500 mb-3"></i>
+
+                <p>
+                    No events have been added yet.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- 5. VIEW DONATIONS -->
+    <!-- ========================================= -->
+
+    <div>
+
+        <h2 class="text-xl font-display font-bold mb-4 text-saffron-600 border-b border-gold-300/30 pb-2">
+
+            <i class="fa-solid fa-hand-holding-dollar mr-2"></i>
+
+            Recent Donations
+
+        </h2>
+
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gold-300/30 overflow-x-auto">
+
+            {% if donations %}
+
+            <table class="w-full text-left border-collapse">
+
+                <thead>
+
+                    <tr class="bg-cream text-ink-700">
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Date
+                        </th>
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Donor
+                        </th>
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Contact Info
+                        </th>
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Amount
+                        </th>
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Status
+                        </th>
+
+                        <th class="p-3 border-b border-gold-300/40">
+                            Payment ID
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for d in donations %}
+
+                    <tr class="hover:bg-saffron-50/50 transition">
+
+                        <td class="p-3 border-b border-gold-300/20 text-sm whitespace-nowrap">
+
+                            {% if d.created_at %}
+
+                            {{ d.created_at.strftime('%b %d, %Y') }}
+
+                            {% else %}
+
+                            —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-3 border-b border-gold-300/20 font-semibold">
+
+                            {{ d.donor_name or 'Anonymous' }}
+
+                        </td>
+
+
+                        <td class="p-3 border-b border-gold-300/20 text-sm">
+
+                            {% if d.donor_email %}
+
+                            <div>
+
+                                <i class="fa-solid fa-envelope mr-1 text-gold-500"></i>
+
+                                {{ d.donor_email }}
+
+                            </div>
+
+                            {% endif %}
+
+
+                            {% if d.donor_phone %}
+
+                            <div class="text-ink-700/80">
+
+                                <i class="fa-solid fa-phone mr-1 text-gold-500"></i>
+
+                                {{ d.donor_phone }}
+
+                            </div>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-3 border-b border-gold-300/20 text-saffron-600 font-bold whitespace-nowrap">
+
+                            ₹{{ d.amount }}
+
+                        </td>
+
+
+                        <td class="p-3 border-b border-gold-300/20 text-sm">
+
+                            {% if d.status == 'Success' %}
+
+                            <span
+                                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-semibold text-xs uppercase tracking-wider">
+
+                                Success
+
+                            </span>
+
+                            {% else %}
+
+                            <span
+                                class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full font-semibold text-xs uppercase tracking-wider">
+
+                                {{ d.status or 'Pending' }}
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-3 border-b border-gold-300/20 text-xs font-mono text-ink-700/50">
+
+                            {{ d.payment_id or '—' }}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="p-8 text-center text-ink-700 font-medium">
+
+                <i class="fa-solid fa-hand-holding-dollar text-3xl text-gold-500 mb-3"></i>
+
+                <p>
+                    No donations recorded yet.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

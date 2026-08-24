@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Contact – Shri Sarwatma Dham{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-16">
+    <h1 class="text-4xl font-display font-bold text-maroon-600 uppercase text-center mb-4">Contact Us</h1>
+    <div class="om-rule mb-12"><span>ॐ</span></div>
+
+    <div class="grid md:grid-cols-12 gap-12">
+        <div class="md:col-span-6 bg-white p-8 rounded-2xl shadow-sm border border-gold-300/30">
+            <h2 class="text-2xl font-display font-bold text-ink mb-6">We're Ready, Let's Talk.</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-4 p-3 bg-emerald-50 text-emerald-700 text-sm rounded-lg font-medium">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('public_bp.contact') }}" method="POST" class="space-y-5 relative">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                <!-- Honeypot: invisible to humans, bots tend to fill every field.
+                     Must be validated server-side to be empty on submit, and
+                     the request silently dropped (not flashed as an error) if not. -->
+                <div class="absolute -left-[9999px]" aria-hidden="true">
+                    <label for="website">Leave this field empty</label>
+                    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <div>
+                    <label for="name" class="sr-only">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required minlength="2"
+                        maxlength="120"
+                        class="w-full border border-gold-300/40 rounded-lg px-4 py-3 focus:ring-2 focus:ring-saffron-500">
+                </div>
+                <div>
+                    <label for="email" class="sr-only">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Email Address" required maxlength="200"
+                        class="w-full border border-gold-300/40 rounded-lg px-4 py-3 focus:ring-2 focus:ring-saffron-500">
+                </div>
+                <div>
+                    <label for="message" class="sr-only">Message</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Message" required minlength="10"
+                        maxlength="2000"
+                        class="w-full border border-gold-300/40 rounded-lg px-4 py-3 focus:ring-2 focus:ring-saffron-500"></textarea>
+                </div>
+                <button type="submit"
+                    class="w-full bg-saffron-500 text-white font-bold py-3.5 rounded-lg hover:bg-maroon-600 shadow transition uppercase tracking-wider text-sm">Send
+                    Message</button>
+            </form>
+        </div>
+
+        <div class="md:col-span-6 space-y-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gold-300/30 space-y-6">
+                <h2 class="text-2xl font-display font-bold text-ink">Contact Info</h2>
+
+                <div class="flex items-start gap-4">
+                    <i class="fa-solid fa-location-dot text-saffron-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-ink">Address</h4>
+                        <p class="text-ink-700">{{ settings.address if settings and settings.address else 'Swarg
+                            Ashram, Rishikesh, Uttarakhand 249304' }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <i class="fa-solid fa-envelope text-saffron-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-ink">Email Us</h4>
+                        <p class="text-ink-700">{{ settings.email if settings and settings.email else
+                            'info@sarwatma.com' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Google Maps iframe using settings.map_url.
+                 SECURITY: map_url is admin-controlled, not public input, but
+                 the update_settings view should still validate it looks like
+                 a maps.google.com embed URL before saving, so a compromised
+                 admin session can't be used to inject an arbitrary iframe src. -->
+            <div class="rounded-2xl overflow-hidden shadow-sm border border-gold-300/30 h-64">
+                <!-- Defensive check: only use settings.map_url if it starts
+                     with https:// AND looks like an embed link. This is a
+                     narrow client-side guard against a compromised admin
+                     account (or bug in update_settings) setting map_url to
+                     something like "javascript:..." or a bare share link —
+                     it is NOT a substitute for validating/allow-listing the
+                     host server-side when the setting is saved. -->
+                <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                    src="{{ settings.map_url if settings and settings.map_url and settings.map_url.startswith('https://') and 'embed' in settings.map_url else 'https://maps.google.com/maps?q=Sarwatma%20Dham%20Ashram&t=m&z=10&output=embed&iwloc=near' }}"
+                    title="Sarwatma Dham Ashram" class="w-full h-full border-0"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

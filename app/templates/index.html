@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-gradient-to-b from-orange-50/50 to-white py-20 border-b border-orange-100/60">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+        <!-- Text Above Slider -->
+        <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight uppercase mb-4">
+            {{ content.title if content else 'Shri Sarwatma Dham Ashram' }}
+        </h1>
+        <h3 class="text-xl md:text-2xl font-medium text-orange-600 mb-8">
+            {{ content.body if content else 'Dhyana Bhakti Yoga Asana Pranayam Satsang' }}
+        </h3>
+
+        <div class="w-24 h-1 bg-orange-500 mx-auto mb-8 rounded-full"></div>
+
+        <!-- NEW SLIDER -->
+        {% if carousel_images %}
+        <div class="relative w-full max-w-5xl mx-auto h-[450px] overflow-hidden rounded-2xl shadow-xl mb-10 group bg-slate-100"
+            id="slider">
+            <div class="flex transition-transform duration-700 ease-in-out h-full" id="slider-track">
+                {% for img in carousel_images %}
+                <div class="w-full flex-shrink-0 h-full">
+                    <!-- object-cover forces image to fit the container perfectly without squishing -->
+                    <img src="{{ url_for('static', filename=img.image_url) }}" class="w-full h-full object-cover"
+                        alt="Ashram Slide">
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Slider Controls -->
+            <button id="prevBtn"
+                class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-orange-600 w-10 h-10 rounded-full shadow opacity-0 group-hover:opacity-100 transition z-10">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button id="nextBtn"
+                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-orange-600 w-10 h-10 rounded-full shadow opacity-0 group-hover:opacity-100 transition z-10">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- JavaScript for Sliding Animation -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const track = document.getElementById('slider-track');
+                const slides = track.children;
+                if (slides.length <= 1) return; // Disable sliding if only 1 image
+
+                let index = 0;
+                const total = slides.length;
+
+                document.getElementById('nextBtn').addEventListener('click', () => {
+                    index = (index + 1) % total;
+                    track.style.transform = `translateX(-${index * 100}%)`;
+                });
+
+                document.getElementById('prevBtn').addEventListener('click', () => {
+                    index = (index - 1 + total) % total;
+                    track.style.transform = `translateX(-${index * 100}%)`;
+                });
+
+                // Auto-slide every 5 seconds
+                setInterval(() => {
+                    index = (index + 1) % total;
+                    track.style.transform = `translateX(-${index * 100}%)`;
+                }, 5000);
+            });
+        </script>
+        {% elif content and content.image_url %}
+        <!-- Fallback standard image if no slider images are uploaded -->
+        <img src="{{ url_for('static', filename=content.image_url) }}" alt="Hero Image"
+            class="mx-auto rounded-2xl shadow-xl w-full max-w-5xl object-cover h-[450px] border-4 border-white mb-10">
+        {% endif %}
+
+        <!-- Contact Button Below Slider -->
+        <a href="{{ url_for('public_bp.contact') }}"
+            class="inline-block bg-orange-500 text-white font-bold uppercase tracking-wider text-sm px-8 py-3.5 rounded-full hover:bg-orange-600 transition shadow-md hover:shadow-lg">
+            Contact Us
+        </a>
+    </div>
+</section>
+
+<section class="py-12 bg-white text-center border-b border-slate-100">
+    <div class="max-w-3xl mx-auto px-4 space-y-3">
+        <blockquote class="text-xl md:text-2xl font-serif italic text-slate-700 leading-relaxed">
+            “Guru Brahma Gurur Vishnu, Guru Devo Maheshwaraha, Guru Saakshat Para Brahma, Tasmai Sree Gurave Namaha.”
+        </blockquote>
+        <p class="font-bold text-slate-900">— Bhagavad Gita</p>
+    </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 py-16">
+    <div class="grid md:grid-cols-12 gap-12 items-center">
+        <div class="md:col-span-4 flex justify-center">
+            <img src="{{ url_for('static', filename='uploads/Home1-300x300.jpg') }}" alt="Swami Sarwatma Nand Maharaj"
+                class="rounded-2xl shadow-xl w-72 h-72 object-cover border-4 border-white">
+        </div>
+        <div class="md:col-span-8 space-y-4">
+            <p class="text-lg text-slate-700 leading-relaxed">
+                <strong class="font-bold text-slate-900">Shri Sarwatma Dham Ashram</strong> was established by <strong
+                    class="font-bold text-slate-900">Swami Sarwatma Nand Maharaj</strong> in <strong
+                    class="font-bold text-slate-900">1984</strong>, with a vision to create self-awareness among every
+                individual by way of Dhyana, Bhakti (devotion) and Yoga Asana traditionally taught for thousands of
+                years.
+            </p>
+            <p class="text-lg text-slate-700 leading-relaxed">
+                The ashram is located in the heart of the iconic Ram Jhula and Laxman Jhula. It is situated on the banks
+                of the holy river Ganga with private access to alluring beaches and rocks. The gushing sound of the holy
+                river Ganga heals you round the clock during your stay in the ashram.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

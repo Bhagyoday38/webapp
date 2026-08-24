@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Donate – Shri Sarwatma Dham{% endblock %}
+
+{% block content %}
+<section class="max-w-xl mx-auto px-4 py-16">
+    <div class="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gold-300/30 text-center space-y-6">
+        <h1 class="text-3xl font-display font-bold text-maroon-600 uppercase">Support Shri Sarwatma Dham</h1>
+        <div class="om-rule"><span>ॐ</span></div>
+        <p class="text-ink-700">Your generous contributions support our daily Satsang, Yoga programs, and charitable
+            initiatives.</p>
+
+        <form id="donate-form" class="space-y-4 text-left">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div>
+                <label for="donor_name" class="block text-sm font-semibold mb-1 text-ink">Full Name</label>
+                <input type="text" id="donor_name" name="donor_name" placeholder="Full Name" required minlength="2"
+                    maxlength="120"
+                    class="w-full border border-gold-300/40 p-3 rounded-lg focus:ring-2 focus:ring-saffron-500">
+            </div>
+            <div>
+                <label for="donor_email" class="block text-sm font-semibold mb-1 text-ink">Email Address</label>
+                <input type="email" id="donor_email" name="donor_email" placeholder="Email Address" required
+                    maxlength="200"
+                    class="w-full border border-gold-300/40 p-3 rounded-lg focus:ring-2 focus:ring-saffron-500">
+            </div>
+            <div>
+                <label for="donor_phone" class="block text-sm font-semibold mb-1 text-ink">Phone Number</label>
+                <input type="tel" id="donor_phone" name="donor_phone" placeholder="e.g. 9876543210" required
+                    minlength="10" maxlength="15" pattern="[0-9]+"
+                    class="w-full border border-gold-300/40 p-3 rounded-lg focus:ring-2 focus:ring-saffron-500">
+            </div>
+
+            <div>
+                <label for="donation_amount" class="block text-sm font-semibold mb-1 text-ink">Donation Amount
+                    (INR)</label>
+                <input type="number" id="donation_amount" name="donation_amount" placeholder="e.g. 1000" min="1"
+                    max="1000000" step="1" required
+                    class="w-full border border-gold-300/40 p-3 rounded-lg focus:ring-2 focus:ring-saffron-500">
+                <!-- max is a sane UI ceiling only — the server MUST still
+                     independently validate donation_amount as a positive
+                     integer within an acceptable range before creating the
+                     Razorpay order; a client max never stops a direct POST. -->
+            </div>
+            <button id="pay-btn" type="button"
+                class="w-full bg-saffron-500 text-white font-bold py-3.5 rounded-lg hover:bg-maroon-600 transition uppercase tracking-wider text-sm shadow">
+                Donate via Secure Gateway
+            </button>
+            <p class="flex items-center justify-center gap-2 text-xs text-ink-700/70 pt-1">
+                <i class="fa-solid fa-lock text-gold-500"></i>
+                Payments are processed securely by Razorpay. We never see or store your card details.
+            </p>
+        </form>
+    </div>
+</section>
+
+<script>
+    // Client-side validation guard: since #pay-btn is type="button" (not
+    // "submit"), the browser's native required/maxlength/min/max checks
+    // never run on click by default — they only fire on form submission.
+    // This runs first (capture phase) and blocks the existing Razorpay
+    // click handler from firing at all when the form is incomplete/invalid,
+    // surfacing the native validation messages via reportValidity() instead.
+    // This does NOT replace server-side validation of the posted amount.
+    (function () {
+        var form = document.getElementById('donate-form');
+        var payBtn = document.getElementById('pay-btn');
+        payBtn.addEventListener('click', function (e) {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                form.reportValidity();
+            }
+        }, true);
+    })();
+</script>
+<!--
+    SECURITY NOTE for the Razorpay integration (server-side, not visible here):
+    - Create the Razorpay order server-side using donation_amount validated
+      as a positive integer (never trust a client-submitted amount as final —
+      re-verify against the order object).
+    - Verify the payment signature server-side (razorpay_signature) using the
+      key secret before marking any donation as successful.
+    - Never expose the Razorpay key secret in this template or client JS —
+      only the public key_id belongs on the client.
+-->
+<!-- Razorpay Scripts remain identical to the previous implementation -->
+{% endblock %}

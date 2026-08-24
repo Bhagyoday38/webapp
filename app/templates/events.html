@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Events – Shri Sarwatma Dham{% endblock %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 py-16 text-center">
+    <!-- Dynamic Content from Admin -->
+    <h1 class="text-4xl font-extrabold text-slate-900 uppercase mb-4">{{ content.title if content else 'Events' }}</h1>
+    <p class="text-lg text-slate-600 mb-12">{{ content.body if content else 'Update will be shared shortly' }}</p>
+
+    <div class="grid md:grid-cols-3 gap-8 text-left">
+        {% for event in events %}
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition">
+            {% if event.image_url %}
+            <img src="{{ url_for('static', filename=event.image_url) }}" class="w-full h-56 object-cover">
+            {% endif %}
+            <div class="p-6">
+                <h3 class="font-bold text-2xl text-slate-900 mb-2">{{ event.title }}</h3>
+                <p class="text-sm text-orange-500 font-bold mb-4 tracking-wider uppercase"><i
+                        class="fa-regular fa-calendar mr-2"></i>{{ event.event_date }}</p>
+                <p class="text-slate-600 leading-relaxed">{{ event.description }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div
+            class="col-span-3 max-w-2xl mx-auto bg-white p-12 rounded-2xl shadow-sm border border-orange-100 text-center">
+            <h2 class="text-2xl font-bold text-orange-600 mb-4">No events scheduled at the moment</h2>
+            <div class="w-16 h-1 bg-orange-400 mx-auto mb-6 rounded-full"></div>
+            <p class="text-slate-600">Please check back soon for upcoming Satsang schedule, Dhyana retreats, and Yoga
+                Asana workshops.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

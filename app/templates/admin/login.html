@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login – Shri Sarwatma Dham{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-16 px-4">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gold-300/30">
+        <div class="text-center mb-6">
+            <i class="fa-solid fa-lock text-3xl text-gold-500 mb-3"></i>
+            <h2 class="text-2xl font-display font-bold text-maroon-600">Admin Authentication</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <!-- Deliberately generic message text is set server-side —
+             never reveal whether it was the username or the password
+             that was wrong; that distinction helps attackers enumerate
+             valid usernames. -->
+        <div class="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center font-medium">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin_bp.login') }}" class="space-y-4" autocomplete="on">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div>
+                <label for="username" class="block text-sm font-semibold mb-1 text-ink">Username</label>
+                <input type="text" id="username" name="username" placeholder="Username" required maxlength="150"
+                    autocomplete="username" autocapitalize="off" spellcheck="false"
+                    class="w-full border border-gold-300/40 p-3 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:border-saffron-500">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-semibold mb-1 text-ink">Password</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                        autocomplete="current-password"
+                        class="w-full border border-gold-300/40 p-3 pr-11 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:border-saffron-500">
+                    <button type="button" id="togglePassword" tabindex="-1" aria-label="Show password"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-700/60 hover:text-ink">
+                        <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit"
+                class="w-full bg-saffron-500 text-white font-bold py-3 rounded-lg hover:bg-maroon-600 transition">Login</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var toggle = document.getElementById('togglePassword');
+        var pw = document.getElementById('password');
+        var icon = document.getElementById('toggleIcon');
+        toggle.addEventListener('click', function () {
+            var isHidden = pw.type === 'password';
+            pw.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+    })();
+</script>
+<!--
+    SERVER-SIDE SECURITY REQUIREMENTS for this form (not visible in the
+    template, but essential — the markup above cannot enforce these):
+    - Rate-limit login attempts per IP and per username (e.g. Flask-Limiter),
+      with an increasing lockout/backoff after repeated failures.
+    - Hash stored passwords with bcrypt or argon2 (never MD5/SHA1/plaintext).
+    - Compare passwords using a constant-time check (the hashing library's
+      verify function already does this — don't do `==` on hashes).
+    - Regenerate the session ID on successful login to prevent session
+      fixation, and set the session cookie as HttpOnly, Secure, SameSite=Lax.
+    - Log failed attempts (username + IP + timestamp) for monitoring,
+      without logging the submitted password.
+-->
+{% endblock %}

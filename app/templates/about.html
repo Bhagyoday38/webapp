@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}About – Shri Sarwatma Dham{% endblock %}
+{% block content %}
+<section class="max-w-5xl mx-auto px-4 py-16">
+    <h1 class="text-3xl md:text-5xl font-display font-bold text-maroon-600 uppercase text-center mb-4 tracking-tight">
+        {{ content.title if content else 'About Shri Sarwatma Dham' }}
+    </h1>
+    <div class="om-rule mb-10"><span>ॐ</span></div>
+
+    <div
+        class="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gold-300/30 grid md:grid-cols-12 gap-8 items-center">
+        <div class="md:col-span-7 space-y-4 text-ink-700 text-lg leading-relaxed">
+            <p>{{ content.body if content else 'Shri Sarwatma Dham Ashram was established by Swami Sarwatma Nand Maharaj
+                in 1984...' }}</p>
+        </div>
+        <div class="md:col-span-5 flex justify-center">
+            <img src="{{ url_for('static', filename=content.image_url) if content and content.image_url else url_for('static', filename='uploads/Home1.jpg') }}"
+                class="rounded-xl shadow-lg w-full max-w-sm object-cover border-4 border-white ring-1 ring-gold-300/40">
+        </div>
+    </div>
+</section>
+{% endblock %}

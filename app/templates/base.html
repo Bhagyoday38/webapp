@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Shri Sarwatma Dham – Dhyana Bhakti Yoga Asana Pranayam Satsang{% endblock %}</title>
+
+    <!-- ============================================================
+         SECURITY HARDENING (template-level, defense in depth)
+         These meta tags help, but the following MUST also be set as
+         real HTTP response headers server-side (e.g. via
+         flask-talisman or an after_request hook):
+
+           X-Frame-Options: SAMEORIGIN
+           X-Content-Type-Options: nosniff
+           Strict-Transport-Security: max-age=63072000; includeSubDomains
+           Set-Cookie: ... ; HttpOnly; Secure; SameSite=Lax   (session cookie)
+
+         IMPORTANT: the `frame-ancestors` directive below is included in
+         this <meta> CSP for documentation purposes only — per the CSP
+         spec, browsers SILENTLY IGNORE frame-ancestors (and sandbox,
+         and report-uri) when delivered via <meta>. It only takes effect
+         if the *same directive* is also sent as a real
+         Content-Security-Policy HTTP response header. Do not assume the
+         admin dashboard is protected from being framed/clickjacked until
+         that header is actually set server-side — this file alone
+         cannot provide that protection.
+
+         Also enforce server-side: rate limiting on /admin/login and
+         /contact (e.g. Flask-Limiter), bcrypt/argon2 password hashing
+         (never plaintext), and validation of uploaded file MIME type
+         + size (never trust the client-side "accept" attribute alone).
+    ============================================================ -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; img-src 'self' data: https:; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src https://www.google.com https://maps.google.com https://google.com https://api.razorpay.com https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com;">
+    <!-- NOTE: Google's "Share > Embed a map" iframe code points at
+         https://www.google.com/maps/embed?pb=... — NOT maps.google.com.
+         If frame-src here doesn't include the exact domain the admin's
+         map_url uses, the browser blocks the iframe and shows
+         "This content is blocked. Contact the site owner to fix the issue."
+         with no server-side error at all (it's a client-side CSP block,
+         so nothing shows up in your Flask logs). If the map still doesn't
+         load after this fix, open the browser devtools Console on the
+         Contact page — a CSP violation is reported there by name. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="robots" content="index, follow">
+    <meta name="description"
+        content="Shri Sarwatma Dham Ashram, Swarg Ashram, Rishikesh — Dhyana, Bhakti, Yoga Asana, Pranayam and Satsang on the banks of the holy Ganga.">
+
+    <!--
+        IMPORTANT: this tailwind.config block is what makes classes like
+        bg-saffron-500 / text-maroon-600 / bg-ganga-900 / bg-cream / text-ink
+        exist at all. It must load AFTER the cdn.tailwindcss.com script tag
+        and BEFORE any element uses those classes (i.e. it must stay in
+        every page that extends this base.html, and must not be removed
+        or reordered). If these custom classes stop rendering site-wide
+        (buttons/text going invisible), check that this block is still here.
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: { 50: '#FFF6ED', 100: '#FFE9D3', 300: '#F3B57C', 400: '#EE9A4F', 500: '#E8792C', 600: '#CF5F17', 700: '#A84813' },
+                        maroon: { 50: '#FBF0EF', 400: '#A44848', 500: '#7A2E2E', 600: '#5F2323', 700: '#4A1B1B' },
+                        gold: { 300: '#E6C878', 400: '#D9A441', 500: '#C9971F', 600: '#A87A16' },
+                        ganga: { 700: '#274E52', 800: '#1F3A3D', 900: '#152A2C' },
+                        cream: { DEFAULT: '#FBF6EC', 100: '#FDF9F1' },
+                        ink: { DEFAULT: '#241C15', 700: '#3A2F24' },
+                    },
+                    fontFamily: {
+                        display: ['"Cormorant Garamond"', 'serif'],
+                        body: ['"Karla"', 'ui-sans-serif', 'system-ui'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        body {
+            font-family: 'Karla', ui-sans-serif, system-ui;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-display {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Signature element: the "Om-rule" — used site-wide under major
+           headings instead of a generic accent bar. */
+        .om-rule {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .om-rule::before,
+        .om-rule::after {
+            content: "";
+            height: 1px;
+            width: 3rem;
+            background: linear-gradient(90deg, transparent, #C9971F, transparent);
+        }
+
+        .om-rule span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #C9971F;
+        }
+
+        /* Subtle mandala-line watermark, used behind the hero only */
+        .mandala-bg {
+            background-image: radial-gradient(circle at center, transparent 0 58px, rgba(201, 151, 31, 0.10) 59px 60px, transparent 61px 96px, rgba(201, 151, 31, 0.08) 97px 98px, transparent 99px);
+            background-size: 200px 200px;
+            background-position: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid #C9971F;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-cream text-ink flex flex-col min-h-screen font-body">
+
+    <header class="bg-cream-100/95 backdrop-blur shadow-sm border-b border-gold-300/40 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{{ url_for('public_bp.index') }}" class="flex items-center gap-3">
+                <img src="{{ url_for('static', filename='uploads/Logo_180X101.png') }}" alt="Shri Sarwatma Dham"
+                    class="h-10 w-auto">
+                <span class="font-display font-bold text-xl text-maroon-600 tracking-wide">Shri Sarwatma Dham</span>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-8 font-medium text-ink-700">
+                <a href="{{ url_for('public_bp.index') }}" class="hover:text-saffron-600 transition">Home</a>
+                <a href="{{ url_for('public_bp.events') }}" class="hover:text-saffron-600 transition">Event</a>
+                <a href="{{ url_for('public_bp.about') }}" class="hover:text-saffron-600 transition">About</a>
+                <a href="{{ url_for('public_bp.contact') }}" class="hover:text-saffron-600 transition">Contact</a>
+                <a href="{{ url_for('public_bp.donate') }}"
+                    class="bg-saffron-500 text-white px-5 py-2 rounded-full hover:bg-maroon-600 transition font-semibold shadow-sm hover:shadow">Donate</a>
+            </nav>
+
+            <!-- Mobile menu toggle -->
+            <button id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"
+                class="md:hidden text-maroon-600 text-2xl p-2">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile nav -->
+        <nav id="mobileMenu"
+            class="md:hidden hidden flex-col border-t border-gold-300/40 bg-cream-100 px-4 py-3 space-y-2 font-medium text-ink-700">
+            <a href="{{ url_for('public_bp.index') }}" class="block py-2 hover:text-saffron-600">Home</a>
+            <a href="{{ url_for('public_bp.events') }}" class="block py-2 hover:text-saffron-600">Event</a>
+            <a href="{{ url_for('public_bp.about') }}" class="block py-2 hover:text-saffron-600">About</a>
+            <a href="{{ url_for('public_bp.contact') }}" class="block py-2 hover:text-saffron-600">Contact</a>
+            <a href="{{ url_for('public_bp.donate') }}"
+                class="block text-center bg-saffron-500 text-white px-5 py-2 rounded-full hover:bg-maroon-600 transition font-semibold">Donate</a>
+        </nav>
+    </header>
+
+    <script>
+            (function () {
+                var btn = document.getElementById('menuBtn');
+                var menu = document.getElementById('mobileMenu');
+                btn.addEventListener('click', function () {
+                    var isOpen = !menu.classList.contains('hidden');
+                    menu.classList.toggle('hidden');
+                    menu.classList.toggle('flex');
+                    btn.setAttribute('aria-expanded', String(!isOpen));
+                });
+            })();
+    </script>
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-ganga-900 text-cream-100/90 py-12 mt-16 border-t-4 border-gold-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="om-rule mb-6"><span>ॐ</span></div>
+            <div class="text-center space-y-3">
+                <p class="text-sm font-medium text-cream-100/70">
+                    <!-- Dynamic Address -->
+                    {{ settings.address if settings and settings.address else 'Swarg Ashram, Rishikesh,
+                    Uttarakhand-249304' }}
+                </p>
+                <div class="flex justify-center gap-6 text-sm">
+                    <a href="{{ url_for('public_bp.about') }}" class="hover:text-gold-400 transition">About</a>
+                    <a href="{{ url_for('public_bp.events') }}" class="hover:text-gold-400 transition">Event</a>
+                    <a href="{{ url_for('public_bp.contact') }}" class="hover:text-gold-400 transition">Contact</a>
+                    <a href="{{ url_for('public_bp.donate') }}" class="hover:text-gold-400 transition">Donate</a>
+                </div>
+                <p class="text-xs text-cream-100/50">
+                    <!-- Dynamic Footer Text -->
+                    {{ settings.footer_text if settings and settings.footer_text else 'Copyright © 2026 Shri Sarwatma
+                    Dham. All rights reserved.' }}
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
