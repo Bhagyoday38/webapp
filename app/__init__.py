@@ -84,9 +84,11 @@ def create_app(config_class=Config):
         """Create an admin or change an existing admin password."""
 
         from app.models import AdminUser
-        if not AdminUser.query.filter_by(username='admin@gmail.com').first():
-            admin = AdminUser(username='admin@gmail.com')
-            admin.set_password('Admin@123')  # Set a secure default password
+
+        admin = AdminUser.query.filter_by(username=username).first()
+
+        if not admin:
+            admin = AdminUser(username=username)
             db.session.add(admin)
 
             click.echo(f"Creating admin account: {username}")
