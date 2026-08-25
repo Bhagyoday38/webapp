@@ -35,8 +35,10 @@ Delete the old database: Delete the instance/sarwatma.db file from your project 
 Initialize the new setup: Run python run.py. The app will automatically create a fresh, encrypted database and generate the default admin@gmail.com account with the hashed password we configured.
 
 set a password by using below command to default admin id
+
 flask set-admin-password
 
 to set custom user id use below command
+
 flask set-admin-password --username myadmin@example.com
 
