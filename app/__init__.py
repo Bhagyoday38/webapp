@@ -1,4 +1,5 @@
 import os
+import click
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -12,22 +13,32 @@ csrf = CSRFProtect()
 
 
 def create_app(config_class=Config):
-    template_dir = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'templates')
-    static_dir = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'static')
+    template_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'templates'
+    )
+    static_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'static'
+    )
 
-    app = Flask(__name__, template_folder=template_dir,
-                static_folder=static_dir)
+    app = Flask(
+        __name__,
+        template_folder=template_dir,
+        static_folder=static_dir
+    )
+
     app.config.from_object(config_class)
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Initialize Core Extensions
     db.init_app(app)
+
     login_manager.init_app(app)
     login_manager.login_view = 'admin_bp.login'
-    login_manager.session_protection = 'strong'  # Mitigates session hijacking
+    login_manager.session_protection = 'strong'
+
     csrf.init_app(app)
 
     # Initialize Security: Limiter & Talisman
@@ -37,10 +48,15 @@ def create_app(config_class=Config):
     @app.context_processor
     def inject_settings():
         from .models import Setting
+
         try:
-            settings_data = {s.key: s.value for s in Setting.query.all()}
+            settings_data = {
+                s.key: s.value
+                for s in Setting.query.all()
+            }
         except Exception:
             settings_data = {}
+
         return dict(settings=settings_data)
 
     # Register Blueprints
@@ -55,13 +71,43 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
 
-    # --- NEW: Seed the Admin Account ---
+    # --------------------------------------------------
+    # Flask CLI command: create/set admin password
+    # --------------------------------------------------
+    @app.cli.command("set-admin-password")
+    @click.option(
+        "--username",
+        default="admin@gmail.com",
+        help="Admin username/email."
+    )
+    def set_admin_password(username):
+        """Create an admin or change an existing admin password."""
+
         from app.models import AdminUser
         if not AdminUser.query.filter_by(username='admin@gmail.com').first():
             admin = AdminUser(username='admin@gmail.com')
-            admin.set_password('Admin')  # Set a secure default password
+            admin.set_password('Admin@123')  # Set a secure default password
             db.session.add(admin)
-            db.session.commit()
-            print("Default admin account created: admin@gmail.com / Admin@123")
+
+            click.echo(f"Creating admin account: {username}")
+
+        else:
+            click.echo(f"Changing password for: {username}")
+
+        password = click.prompt(
+            "Enter password",
+            hide_input=True,
+            confirmation_prompt=True
+        )
+
+        if len(password) < 8:
+            click.echo("Password must be at least 8 characters.")
+            return
+
+        admin.set_password(password)
+
+        db.session.commit()
+
+        click.echo(f"Admin password successfully set for {username}.")
 
     return app
